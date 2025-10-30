@@ -1,0 +1,4 @@
+id_envio,cliente,direccion,estado
+001,Cami Vega,calle a #5,Entregado
+002,Sebastian Cuesta,calle b#3,En tránsito
+003,Luis Guerra,calle c #3,Pendiente

@@ -1,0 +1,148 @@
+openapi: 3.0.3
+info:
+  title: Servicio REST de Envíos - EcoLogistics
+  version: "1.0.1"
+  description: >
+    API desarrollada con Apache Camel que procesa archivos CSV de envíos
+    y expone la información de manera accesible en formato JSON desde memoria.
+servers:
+  - url: /api
+    description: Servidor local de desarrollo
+
+paths:
+  /envios:
+    get:
+      summary: Consultar todos los envíos disponibles
+      tags:
+        - Envíos
+      description: Retorna el listado completo de envíos cargados desde el archivo CSV.
+      responses:
+        '200':
+          description: Operación exitosa. Se devuelve la lista de envíos registrados.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Envio'
+              examples:
+                ejemplo:
+                  summary: Ejemplo de respuesta con varios envíos
+                  value:
+                    - id_envio: "001"
+                      cliente: "Cami Vega"
+                      direccion: "Calle A #5"
+                      estado: "Entregado"
+                    - id_envio: "002"
+                      cliente: "Sebastian Cuesta"
+                      direccion: "Calle B #3"
+                      estado: "En tránsito"
+                    - id_envio: "003"
+                      cliente: "Luis Guerra"
+                      direccion: "Calle C #3"
+                      estado: "Pendiente"
+
+    post:
+      summary: Registrar un nuevo envío en memoria
+      tags:
+        - Envíos
+      description: Permite agregar un nuevo registro de envío utilizando JSON.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Envio'
+            examples:
+              nuevo_envio:
+                summary: Ejemplo de creación de un nuevo envío
+                value:
+                  id_envio: "004"
+                  cliente: "María López"
+                  direccion: "Av. Amazonas y Colón"
+                  estado: "Preparando envío"
+      responses:
+        '201':
+          description: Envío agregado correctamente.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  mensaje:
+                    type: string
+                    example: "Registro exitoso"
+
+  /envios/{id_envio}:
+    get:
+      summary: Consultar envío por identificador
+      tags:
+        - Envíos
+      description: Devuelve la información de un envío específico según su ID.
+      parameters:
+        - name: id_envio
+          in: path
+          required: true
+          description: Código único del envío a consultar.
+          schema:
+            type: string
+            example: "001"
+      responses:
+        '200':
+          description: Envío encontrado exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Envio'
+              examples:
+                envio_encontrado:
+                  value:
+                    id_envio: "001"
+                    cliente: "Cami Vega"
+                    direccion: "Calle A #5"
+                    estado: "Entregado"
+        '404':
+          description: No se localizó el envío solicitado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                no_encontrado:
+                  value:
+                    error: "El envío solicitado no existe en el sistema."
+
+components:
+  schemas:
+    Envio:
+      type: object
+      required:
+        - id_envio
+        - cliente
+        - direccion
+        - estado
+      properties:
+        id_envio:
+          type: string
+          description: Identificador único del envío.
+          example: "001"
+        cliente:
+          type: string
+          description: Nombre completo del cliente.
+          example: "Cami Vega"
+        direccion:
+          type: string
+          description: Dirección de entrega.
+          example: "Calle A #5"
+        estado:
+          type: string
+          description: Estado actual del envío.
+          example: "En tránsito"
+
+    Error:
+      type: object
+      description: Mensaje de error genérico para respuestas no exitosas.
+      properties:
+        error:
+          type: string
+          example: "El envío solicitado no existe o fue eliminado."
